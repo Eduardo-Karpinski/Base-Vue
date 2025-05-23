@@ -1,0 +1,23 @@
+/* Light Mode */
+body:not(.v-theme--dark) input:-webkit-autofill,
+body:not(.v-theme--dark) input:-webkit-autofill:hover,
+body:not(.v-theme--dark) input:-webkit-autofill:focus,
+body:not(.v-theme--dark) input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0) inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-transition: background-color 9999s ease-in-out 0s;
+  color: inherit !important;
+}
+
+/* Dark Mode */
+body.v-theme--dark input:-webkit-autofill,
+body.v-theme--dark input:-webkit-autofill:hover,
+body.v-theme--dark input:-webkit-autofill:focus,
+body.v-theme--dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0) inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-transition: background-color 9999s ease-in-out 0s;
+  color: inherit !important;
+}
