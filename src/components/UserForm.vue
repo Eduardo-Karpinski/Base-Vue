@@ -21,6 +21,7 @@ watch(internalOpen, (val) => {
   emit('update:isOpen', val)
 })
 
+const formRef = ref()
 const name = ref('')
 const email = ref('')
 const roles = ref<string[]>([])
@@ -33,7 +34,13 @@ function close() {
   resetForm()
 }
 
-function submit() {
+async function submit() {
+  const result = await formRef.value?.validate()
+
+  if (!result?.valid) {
+    return
+  }
+
   const payload = {
     name: name.value,
     email: email.value,
@@ -42,7 +49,6 @@ function submit() {
   }
 
   emit('saved', payload)
-  //close()
 }
 
 function resetForm() {
@@ -62,15 +68,25 @@ function resetForm() {
       </v-card-title>
 
       <v-card-text>
-        <v-form @submit.prevent="submit" autocomplete="off">
-          <v-text-field v-model="name" label="Nome" prepend-inner-icon="mdi-account" required />
+        <v-form ref="formRef" @submit.prevent="submit" autocomplete="off">
+          <v-text-field
+            v-model="name"
+            label="Nome"
+            prepend-inner-icon="mdi-account"
+            :rules="[(v) => !!v || 'Nome é obrigatório']"
+            required
+          />
           <v-text-field
             v-model="email"
             label="Email"
             prepend-inner-icon="mdi-email"
             type="email"
-            required
             autocomplete="new-email"
+            :rules="[
+              (v) => !!v || 'Email é obrigatório',
+              (v) => /.+@.+\..+/.test(v) || 'Email inválido',
+            ]"
+            required
           />
           <v-select
             v-model="roles"
@@ -79,6 +95,7 @@ function resetForm() {
             prepend-inner-icon="mdi-shield-account"
             multiple
             chips
+            :rules="[(v) => v.length > 0 || 'Selecione pelo menos uma permissão']"
             required
           />
           <v-text-field
@@ -86,18 +103,28 @@ function resetForm() {
             label="Senha"
             prepend-inner-icon="mdi-lock"
             type="password"
-            :rules="[(v) => !!v || 'Senha obrigatória']"
-            required
             autocomplete="new-password"
+            :rules="[
+              (v) => !!v || 'Senha é obrigatória',
+              (v) => (v && v.length >= 8) || 'Mínimo 8 caracteres',
+              (v) => (v && v.length <= 32) || 'Máximo 32 caracteres',
+            ]"
+            required
           />
         </v-form>
       </v-card-text>
 
       <v-card-actions class="justify-end">
         <v-btn variant="tonal" color="grey" @click="close">Cancelar</v-btn>
-        <v-btn color="primary" variant="flat" @click="submit" :loading="loading" :disabled="loading"
-          >Salvar</v-btn
+        <v-btn
+          color="primary"
+          variant="flat"
+          :loading="loading"
+          :disabled="loading"
+          @click="submit"
         >
+          Salvar
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

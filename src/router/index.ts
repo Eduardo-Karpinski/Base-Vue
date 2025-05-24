@@ -20,19 +20,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         { path: 'dashboard', name: 'Dashboard', component: DashboardView },
-        { path: 'usuarios', name: 'Usuarios', component: UserView },
+        { path: 'usuarios', name: 'Usuarios', component: UserView, meta: { requiresAdmin: true } },
       ],
     },
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const auth = useAuthStore()
+
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next({ path: '/' })
-  } else {
-    next()
+    return { path: '/' }
   }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { path: '/dashboard' }
+  }
+
+  return true
 })
 
 export default router

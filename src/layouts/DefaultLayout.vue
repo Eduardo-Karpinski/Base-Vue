@@ -9,7 +9,7 @@ const drawer = ref(true)
 
 const items = [
   { title: 'Dashboard', icon: 'mdi-monitor-dashboard', to: '/dashboard' },
-  { title: 'Usuários', icon: 'mdi-account-multiple', to: '/usuarios' },
+  ...(auth.isAdmin ? [{ title: 'Usuários', icon: 'mdi-account-multiple', to: '/usuarios' }] : []),
 ]
 </script>
 
