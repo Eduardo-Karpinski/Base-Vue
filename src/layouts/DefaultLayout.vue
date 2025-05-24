@@ -25,6 +25,14 @@ const items = [
       >
         <v-icon>mdi-theme-light-dark</v-icon>
       </v-btn>
+
+      <v-tooltip text="Sair" location="bottom">
+        <template #activator="{ props }">
+          <v-btn icon v-bind="props" @click="auth.logout()">
+            <v-icon>mdi-alien-outline</v-icon>
+          </v-btn>
+        </template>
+      </v-tooltip>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app color="surface" width="260">
@@ -33,7 +41,7 @@ const items = [
           <v-img src="https://i.pravatar.cc/150?img=3" />
         </v-avatar>
         <div>
-          <div class="font-weight-medium">{{ auth.user.name }}</div>
+          <div class="font-weight-medium">{{ auth.user?.name }}</div>
           <div class="text-grey text-caption">{{ auth.isAdmin ? 'Administrador' : 'Usuário' }}</div>
         </div>
       </div>

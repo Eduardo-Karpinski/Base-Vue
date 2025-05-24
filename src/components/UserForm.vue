@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import type { User } from '@/models/User'
+import { ref, watch, computed } from 'vue'
 
 const emit = defineEmits(['update:isOpen', 'saved'])
 
 const props = defineProps<{
   isOpen: boolean
   loading: boolean
+  user: User | null
 }>()
 
 const internalOpen = ref(props.isOpen)
+const formRef = ref()
+const name = ref('')
+const email = ref('')
+const roles = ref<string[]>([])
+const password = ref('')
+const title = computed(() => (props.user ? 'Editar Usuário' : 'Adicionar Usuário'))
 
 watch(
   () => props.isOpen,
@@ -21,17 +29,24 @@ watch(internalOpen, (val) => {
   emit('update:isOpen', val)
 })
 
-const formRef = ref()
-const name = ref('')
-const email = ref('')
-const roles = ref<string[]>([])
-const password = ref('')
-
-const title = 'Adicionar Usuário'
+watch(
+  () => props.user,
+  (user) => {
+    if (user) {
+      resetForm()
+      name.value = user.name
+      email.value = user.email
+      roles.value = [...user.roles]
+    } else {
+      resetForm()
+    }
+  },
+  { immediate: true },
+)
 
 function close() {
   internalOpen.value = false
-  resetForm()
+  //resetForm()
 }
 
 async function submit() {
@@ -42,6 +57,7 @@ async function submit() {
   }
 
   const payload = {
+    id: props.user?.id,
     name: name.value,
     email: email.value,
     roles: roles.value,
@@ -99,6 +115,7 @@ function resetForm() {
             required
           />
           <v-text-field
+            v-if="!props.user"
             v-model="password"
             label="Senha"
             prepend-inner-icon="mdi-lock"

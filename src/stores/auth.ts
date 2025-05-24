@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '@/models/User'
+import router from '@/router'
 
 const savedToken = localStorage.getItem('token')
 
@@ -28,6 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
+    router.push('/')
   }
 
   return {

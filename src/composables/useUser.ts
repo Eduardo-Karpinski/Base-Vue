@@ -13,6 +13,7 @@ export function useUser() {
   const loading = ref(false)
   const saveLoading = ref(false)
   const showModal = ref(false)
+  const editedUser = ref<User | null>(null)
 
   const pagination = ref({
     page: 1,
@@ -30,13 +31,21 @@ export function useUser() {
     { title: 'Ações', key: 'actions', sortable: false },
   ]
 
-  async function handleAddUsuario(
-    payload: Omit<User, 'id' | 'creationDate'> & { password: string },
-  ) {
+  function openEditModal(user: User) {
+    editedUser.value = { ...user }
+    showModal.value = true
+  }
+
+  async function handleSaveUsuario(payload: Partial<User> & { password?: string }) {
     saveLoading.value = true
     try {
-      await api.post('/users', payload)
-      showToast('Usuário adicionado com sucesso!', 'success')
+      if (payload.id) {
+        await api.put(`/users/${payload.id}`, payload)
+        showToast('Usuário atualizado com sucesso!', 'success')
+      } else {
+        await api.post('/users', payload)
+        showToast('Usuário adicionado com sucesso!', 'success')
+      }
       showModal.value = false
       fetchUsuarios()
     } catch (error) {
@@ -104,8 +113,10 @@ export function useUser() {
     headers,
     saveLoading,
     showModal,
+    editedUser,
     fetchUsuarios,
     deleteUsuario,
-    handleAddUsuario,
+    handleSaveUsuario,
+    openEditModal,
   }
 }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useUser } from '@/composables/useUser'
-import { useToast } from '@/composables/useToast'
 import { formatDate } from '@/utils/date'
 import UsuarioForm from '@/components/UserForm.vue'
 
@@ -11,10 +10,11 @@ const {
   headers,
   saveLoading,
   showModal,
+  editedUser,
   deleteUsuario,
-  handleAddUsuario,
+  handleSaveUsuario,
+  openEditModal,
 } = useUser()
-const { showToast } = useToast()
 </script>
 
 <template>
@@ -22,8 +22,24 @@ const { showToast } = useToast()
     <v-card-title class="text-h5 d-flex justify-space-between">
       Usuários
       <div>
-        <UsuarioForm v-model:isOpen="showModal" :loading="saveLoading" @saved="handleAddUsuario" />
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="showModal = true">Adicionar</v-btn>
+        <UsuarioForm
+          v-model:isOpen="showModal"
+          :loading="saveLoading"
+          :user="editedUser"
+          @saved="handleSaveUsuario"
+        />
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="
+            () => {
+              showModal = true
+              editedUser = null
+            }
+          "
+        >
+          Adicionar
+        </v-btn>
       </div>
     </v-card-title>
 
@@ -60,13 +76,7 @@ const { showToast } = useToast()
       </template>
 
       <template #[`item.actions`]="{ item }">
-        <v-btn
-          icon
-          size="small"
-          color="blue"
-          variant="text"
-          @click="showToast('Funcionalidade de editar não implementada ainda', 'info')"
-        >
+        <v-btn icon size="small" color="blue" variant="text" @click="openEditModal(item)">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
 

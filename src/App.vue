@@ -7,6 +7,7 @@ const { isOpen, title, message, confirmColor, cancel, confirm } = useConfirm()
 
 <template>
   <router-view />
+
   <v-snackbar
     v-model="snackbar"
     :color="color"
