@@ -1,19 +1,13 @@
 import axios from 'axios'
-import { useAuthStore } from '@/stores/auth'
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api/v1',
   timeout: 5000,
+  withCredentials: true,
 })
 
 api.interceptors.request.use(
   (config) => {
-    const auth = useAuthStore()
-
-    if (auth.token) {
-      config.headers.Authorization = `Bearer ${auth.token}`
-    }
-
     console.log('%c[API Request]', 'color: green; font-weight: bold', {
       url: config.url,
       method: config.method,

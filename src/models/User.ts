@@ -4,5 +4,4 @@ export interface User {
   email: string
   creationDate: string
   roles: string[]
-  token: string
 }
