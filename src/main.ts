@@ -34,17 +34,16 @@ app.use(router)
 app.use(vuetify)
 
 const auth = useAuthStore()
-if (auth.token) {
-  await api
-    .get('/auth/validate')
-    .then((response) => {
-      auth.setUser(response.data)
-      router.push('/dashboard')
-    })
-    .catch(() => {
-      auth.logout()
-      router.push('/')
-    })
-}
+
+await api
+  .get('/auth/validate')
+  .then((response) => {
+    auth.setUser(response.data)
+    router.push('/dashboard')
+  })
+  .catch(() => {
+    auth.logout()
+    router.push('/')
+  })
 
 app.mount('#app')

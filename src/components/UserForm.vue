@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { User } from '@/models/User'
 import { ref, watch, computed } from 'vue'
+import { nameRules, emailRules, passwordRules, roleRules } from '@/utils/validationRules.ts'
+import { useShake } from '@/composables/useShake'
 
 const emit = defineEmits(['update:isOpen', 'saved'])
 
@@ -18,10 +20,15 @@ const roles = ref<string[]>([])
 const password = ref('')
 const title = computed(() => (props.user ? 'Editar Usuário' : 'Adicionar Usuário'))
 
+const { shake, triggerShake } = useShake()
+
 watch(
   () => props.isOpen,
   (val) => {
     internalOpen.value = val
+    if (internalOpen.value && !props.user) {
+      resetForm()
+    }
   },
 )
 
@@ -33,12 +40,9 @@ watch(
   () => props.user,
   (user) => {
     if (user) {
-      resetForm()
       name.value = user.name
       email.value = user.email
       roles.value = [...user.roles]
-    } else {
-      resetForm()
     }
   },
   { immediate: true },
@@ -53,6 +57,7 @@ async function submit() {
   const result = await formRef.value?.validate()
 
   if (!result?.valid) {
+    triggerShake()
     return
   }
 
@@ -77,7 +82,7 @@ function resetForm() {
 
 <template>
   <v-dialog v-model="internalOpen" max-width="500" persistent transition="dialog-bottom-transition">
-    <v-card>
+    <v-card :class="{ shake: shake }">
       <v-card-title class="text-h6 font-weight-bold">
         <v-icon class="me-2">mdi-account-plus</v-icon>
         {{ title }}
@@ -89,7 +94,7 @@ function resetForm() {
             v-model="name"
             label="Nome"
             prepend-inner-icon="mdi-account"
-            :rules="[(v) => !!v || 'Nome é obrigatório']"
+            :rules="nameRules"
             required
           />
           <v-text-field
@@ -98,10 +103,7 @@ function resetForm() {
             prepend-inner-icon="mdi-email"
             type="email"
             autocomplete="new-email"
-            :rules="[
-              (v) => !!v || 'Email é obrigatório',
-              (v) => /.+@.+\..+/.test(v) || 'Email inválido',
-            ]"
+            :rules="emailRules"
             required
           />
           <v-select
@@ -111,7 +113,7 @@ function resetForm() {
             prepend-inner-icon="mdi-shield-account"
             multiple
             chips
-            :rules="[(v) => v.length > 0 || 'Selecione pelo menos uma permissão']"
+            :rules="roleRules"
             required
           />
           <v-text-field
@@ -121,11 +123,7 @@ function resetForm() {
             prepend-inner-icon="mdi-lock"
             type="password"
             autocomplete="new-password"
-            :rules="[
-              (v) => !!v || 'Senha é obrigatória',
-              (v) => (v && v.length >= 8) || 'Mínimo 8 caracteres',
-              (v) => (v && v.length <= 32) || 'Máximo 32 caracteres',
-            ]"
+            :rules="passwordRules"
             required
           />
         </v-form>
