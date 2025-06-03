@@ -42,7 +42,6 @@ await api
     router.push('/dashboard')
   })
   .catch(() => {
-    auth.logout()
     router.push('/')
   })
 
