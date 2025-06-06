@@ -1,39 +1,176 @@
-# base
+# Base-Vue
 
-This template should help get you started developing with Vue 3 in Vite.
+[![Vue 3](https://img.shields.io/badge/Vue-3.x-brightgreen)](https://vuejs.org/)
+[![Vite](https://img.shields.io/badge/Vite-^4.0-blueviolet)](https://vitejs.dev/)
+[![License](https://img.shields.io/github/license/Eduardo-Karpinski/Base-Vue)](./LICENSE)
 
-## Recommended IDE Setup
+Modern frontend project built with [Vue 3](https://vuejs.org/) and [Vite](https://vitejs.dev/), fully compatible with the [Base Spring Boot API](https://github.com/Eduardo-Karpinski/Base).
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Type Support for `.vue` Imports in TS
+## 📁 Project Structure
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+This project follows a modular architecture with clear separation of concerns:
 
-## Customize configuration
+```
+src/
+│
+├── assets/             # Static assets like CSS
+│   └── main.css
+│
+├── components/         # Reusable Vue components
+│   └── UserForm.vue
+│
+├── composables/        # Reusable composition functions
+│   ├── useConfirm.ts
+│   ├── useShake.ts
+│   ├── useToast.ts
+│   └── useUser.ts
+│
+├── layouts/            # Application layout wrappers
+│   ├── AuthLayout.vue
+│   └── DefaultLayout.vue
+│
+├── models/             # TypeScript models and interfaces
+│   ├── ApiErrorResponse.ts
+│   └── User.ts
+│
+├── router/             # Route configuration
+│   └── index.ts
+│
+├── services/           # API communication logic
+│   └── api.ts
+│
+├── stores/             # Pinia state management
+│   └── auth.ts
+│
+├── utils/              # Utility functions
+│   ├── date.ts
+│   ├── errorHandler.ts
+│   └── validationRules.ts
+│
+└── views/              # Application views (router pages)
+    ├── DashboardView.vue
+    ├── LoginView.vue
+    └── UserView.vue
+```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+---
 
-## Project Setup
+## 🔐 Best Practices and Security
 
-```sh
+This project follows frontend best practices, including Axios interceptors for consistent request/response handling and secure configurations.
+
+```ts
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api/v1',
+  timeout: 5000,
+  withCredentials: true,
+})
+```
+
+It logs requests/responses for easier debugging and ensures errors are captured and handled gracefully. TypeScript usage and modular structure also increase safety and maintainability.
+
+---
+
+## 🚀 Running the Project
+
+### Prerequisites
+
+- Node.js 16+
+- npm or yarn
+
+### Install dependencies
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Start development server
 
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Build for production
 
-```sh
+```bash
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Lint the project
 
-```sh
+```bash
 npm run lint
 ```
+
+---
+
+## 🔗 Backend Integration
+
+This frontend is designed to work with the Spring Boot API running on port `8080`, exposing REST endpoints.  
+👉 [Base - Spring Boot API](https://github.com/Eduardo-Karpinski/Base)
+
+---
+
+## 💬 Contributing
+
+Pull requests and suggestions are welcome!
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more details.
+
+---
+
+## 🛡️ Layout-Based Security Architecture
+
+The routing system is structured around **layout-based access control**, using two main components:
+
+- `AuthLayout`: used for public pages such as Login
+- `DefaultLayout`: used for protected routes that require authentication or specific roles
+
+This architecture promotes clean separation between unauthenticated and authenticated views:
+
+```ts
+const routes = [
+  {
+    path: '/',
+    component: AuthLayout,
+    children: [{ path: '', name: 'Login', component: LoginView }],
+  },
+  {
+    path: '/',
+    component: DefaultLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'dashboard', name: 'Dashboard', component: DashboardView },
+      { path: 'usuarios', name: 'Usuarios', component: UserView, meta: { requiresAdmin: true } },
+    ],
+  },
+]
+```
+
+### 🔐 Navigation Guards
+
+The app uses route guards to protect access based on authentication and user roles:
+
+```ts
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return { path: '/' }
+  }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { path: '/dashboard' }
+  }
+
+  return true
+})
+```
+
+This ensures that only authenticated users (and optionally admins) can access certain views, enhancing the application's security model.
