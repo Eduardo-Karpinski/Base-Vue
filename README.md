@@ -73,6 +73,55 @@ It logs requests/responses for easier debugging and ensures errors are captured 
 
 ---
 
+## 🛡️ Layout-Based Security Architecture
+
+The routing system is structured around **layout-based access control**, using two main components:
+
+- `AuthLayout`: used for public pages such as Login
+- `DefaultLayout`: used for protected routes that require authentication or specific roles
+
+This architecture promotes clean separation between unauthenticated and authenticated views:
+
+```ts
+const routes = [
+  {
+    path: '/',
+    component: AuthLayout,
+    children: [{ path: '', name: 'Login', component: LoginView }],
+  },
+  {
+    path: '/',
+    component: DefaultLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'dashboard', name: 'Dashboard', component: DashboardView },
+      { path: 'usuarios', name: 'Usuarios', component: UserView, meta: { requiresAdmin: true } },
+    ],
+  },
+]
+```
+
+### 🔐 Navigation Guards
+
+The app uses route guards to protect access based on authentication and user roles:
+
+```ts
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return { path: '/' }
+  }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { path: '/dashboard' }
+  }
+
+  return true
+})
+```
+---
+
 ## 🚀 Running the Project
 
 ### Prerequisites
@@ -122,55 +171,5 @@ Pull requests and suggestions are welcome!
 ## 📝 License
 
 Distributed under the MIT License. See `LICENSE` for more details.
-
----
-
-## 🛡️ Layout-Based Security Architecture
-
-The routing system is structured around **layout-based access control**, using two main components:
-
-- `AuthLayout`: used for public pages such as Login
-- `DefaultLayout`: used for protected routes that require authentication or specific roles
-
-This architecture promotes clean separation between unauthenticated and authenticated views:
-
-```ts
-const routes = [
-  {
-    path: '/',
-    component: AuthLayout,
-    children: [{ path: '', name: 'Login', component: LoginView }],
-  },
-  {
-    path: '/',
-    component: DefaultLayout,
-    meta: { requiresAuth: true },
-    children: [
-      { path: 'dashboard', name: 'Dashboard', component: DashboardView },
-      { path: 'usuarios', name: 'Usuarios', component: UserView, meta: { requiresAdmin: true } },
-    ],
-  },
-]
-```
-
-### 🔐 Navigation Guards
-
-The app uses route guards to protect access based on authentication and user roles:
-
-```ts
-router.beforeEach((to) => {
-  const auth = useAuthStore()
-
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { path: '/' }
-  }
-
-  if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return { path: '/dashboard' }
-  }
-
-  return true
-})
-```
 
 This ensures that only authenticated users (and optionally admins) can access certain views, enhancing the application's security model.
